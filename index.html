@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <title>Blob Explorer</title>
+  <style>
+    body {
+      font-family: Segoe UI, Arial, sans-serif;
+      margin: 20px;
+    }
+
+    #currentPath {
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .breadcrumb {
+      margin: 6px 0 10px 0;  /* 👈 hier hoort die margin */
+      font-size: 0.9em;
+      color: #444;
+    }
+
+    .breadcrumb a {
+      color: #0078d4;
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    #dropzone {
+      border: 2px dashed #888;
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #555;
+    }
+
+    #dropzone.dragover {
+      background-color: #eef;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      padding: 4px 6px;
+      border-radius: 3px;
+    }
+
+    li.selected {
+      background-color: #eaf3ff;
+      border-left: 4px solid #0078d4;
+      padding-left: 6px;
+      font-weight: 600;
+    }
+
+    li:hover {
+      background-color: #f5f5f5;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Documents</h2>
+  
+  <nav id="breadcrumb" style="margin-bottom:8px;"></nav>
+
+  <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+    <button id="btnUp" type="button">Up one level</button>
+    <button id="btnNewFolder" type="button">New folder</button>
+  </div>  
+
+  <div id="dropzone">
+    Drag files here to upload
+  </div>
+  
+  <div style="margin-top:10px; display:flex; gap:10px;">
+    <button id="btnPreview" disabled>Preview</button>
+    <button id="btnDownload" disabled>Download</button>
+  </div>
+
+  <ul id="fileList"></ul>
+
+  <!-- Jouw eigen code -->
+<script src="./app.js"></script>
+</body>
+</html>
