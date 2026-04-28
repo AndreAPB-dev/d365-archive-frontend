@@ -129,6 +129,9 @@ async function listBlobs(ctx) {
     `&prefix=${encodeURIComponent(prefix)}` +
     `&delimiter=/`;
 
+  ctx.getUploadBlobSasUrl = "https://fa-d365-archive-dta.azurewebsites.net/api/GetUploadBlobSas";
+  ctx.functionKey = "yHQRAG6vjWU8lev5wqTGmFN8eRs0XF-2fh7S9zjR1Yj7AzFu66kYBA=="; // laat leeg "" als je straks Anonymous gaat
+
   const res = await fetch(url);
   if (!res.ok) {
     const txt = await res.text();
@@ -248,7 +251,7 @@ btnDownload?.addEventListener("click", async () => {
 
   URL.revokeObjectURL(blobUrl);
 });
-
+/*
 // ---------- 5) UPLOAD (drag & drop) ----------
 async function uploadFileToBlob(ctx, file) {
   const sasToken = unescapeSas(ctx.sasToken);
@@ -270,6 +273,56 @@ async function uploadFileToBlob(ctx, file) {
   if (!res.ok) {
     const txt = await res.text();
     throw new Error(`Upload failed (${file.name}): ${txt}`);
+  }
+}
+*/
+// ---------- 5) UPLOAD (drag & drop) ----------
+async function uploadFileToBlob(ctx, file) {
+  // folderPath = current path without leading/trailing slashes
+  const folderPath = (path || "")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+
+  // 1) Per file ask for a blob-level uploadUrl
+  const reqBody = {
+    folderPath: folderPath,
+    fileName: file.name
+  };
+
+  const sasResp = await fetch(ctx.getUploadBlobSasUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(ctx.functionKey ? { "x-functions-key": ctx.functionKey } : {})
+    },
+    body: JSON.stringify(reqBody)
+  });
+
+  if (!sasResp.ok) {
+    const txt = await sasResp.text();
+    throw new Error(`GetUploadBlobSas failed (${file.name}): ${sasResp.status} ${txt}`);
+  }
+
+  const sasJson = await sasResp.json();
+  const uploadUrl = sasJson.uploadUrl;
+
+  if (!uploadUrl) {
+    throw new Error(`GetUploadBlobSas response missing uploadUrl (${file.name})`);
+  }
+
+  // 2) Upload directly to Blob with PUT on uploadUrl
+  const res = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "x-ms-blob-type": "BlockBlob",
+      "Content-Type": file.type || "application/octet-stream"
+    },
+    body: file
+  });
+
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Upload failed (${file.name}): ${res.status} ${txt}`);
   }
 }
 
