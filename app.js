@@ -130,7 +130,7 @@ async function listBlobs(ctx) {
     `&delimiter=/`;
 
   ctx.getUploadBlobSasUrl = "https://fa-d365-archive-dta.azurewebsites.net/api/GetUploadBlobSas";
-  ctx.functionKey = "yHQRAG6vjWU8lev5wqTGmFN8eRs0XF-2fh7S9zjR1Yj7AzFu66kYBA=="; // laat leeg "" als je straks Anonymous gaat
+  ctx.functionKey = ""; // laat leeg "" als je straks Anonymous gaat
 
   const res = await fetch(url);
   if (!res.ok) {
