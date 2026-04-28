@@ -8,7 +8,7 @@ if (!path) {
   alert("No 'path' parameter in URL");
   throw new Error("Missing path");
 }
-
+//Test extra line
 //document.getElementById("currentPath").innerText = "Path: " + path;
 
 // ---------- Global state ----------
