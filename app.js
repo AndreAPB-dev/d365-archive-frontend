@@ -8,7 +8,18 @@ if (!path) {
   alert("No 'path' parameter in URL");
   throw new Error("Missing path");
 }
-//Test extra line
+
+// ---------- Local config (optional) ----------
+const cfg = window.__cfg || {};
+
+const FUNCTION_KEY = cfg.functionKey || "";
+
+const GET_ARCHIVE_SAS_URL =
+  cfg.getArchiveSasUrl || "https://fa-d365-archive-dta.azurewebsites.net/api/getarchivesas";
+
+const GET_UPLOAD_BLOB_SAS_URL =
+  cfg.getUploadBlobSasUrl || "https://fa-d365-archive-dta.azurewebsites.net/api/GetUploadBlobSas";
+
 //document.getElementById("currentPath").innerText = "Path: " + path;
 
 // ---------- Global state ----------
@@ -16,28 +27,12 @@ let selectedFile = null; // { name, blobPath }
 let lastCtx = null;
 
 // ---------- 1) Get SAS context ----------
-/*async function getSasContext() {
-  const response = await fetch("http://localhost:7153/api/GetArchiveSas", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ path })
-  });
-
-  if (!response.ok) {
-    const txt = await response.text();
-    throw new Error("Failed to retrieve SAS: " + txt);
-  }
-
-  return response.json();
-}*/
-
-// ---------- 1) Get SAS context ----------
 async function getSasContext() {
-  const response = await fetch("https://fa-d365-archive-dta.azurewebsites.net/api/getarchivesas", {
+  const response = await fetch(GET_ARCHIVE_SAS_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-functions-key": "yHQRAG6vjWU8lev5wqTGmFN8eRs0XF-2fh7S9zjR1Yj7AzFu66kYBA=="
+      ...(FUNCTION_KEY ? { "x-functions-key": FUNCTION_KEY } : {})
     },
     body: JSON.stringify({ path })
   });
@@ -49,7 +44,6 @@ async function getSasContext() {
 
   return response.json();
 }
-
 
 // ---------- 2) SAS unescape ----------
 function unescapeSas(s) {
@@ -128,9 +122,6 @@ async function listBlobs(ctx) {
     `&restype=container&comp=list` +
     `&prefix=${encodeURIComponent(prefix)}` +
     `&delimiter=/`;
-
-  ctx.getUploadBlobSasUrl = "https://fa-d365-archive-dta.azurewebsites.net/api/GetUploadBlobSas";
-  ctx.functionKey = ""; // laat leeg "" als je straks Anonymous gaat
 
   const res = await fetch(url);
   if (!res.ok) {
@@ -363,6 +354,11 @@ function enableDragDrop(ctx) {
   await new Promise(requestAnimationFrame);
     
   const ctx = await getSasContext();
+  
+  // Attach upload function endpoint + (optional) key to the context
+  ctx.getUploadBlobSasUrl = GET_UPLOAD_BLOB_SAS_URL;
+  ctx.functionKey = FUNCTION_KEY;
+
   await listBlobs(ctx);
   enableDragDrop(ctx);
 

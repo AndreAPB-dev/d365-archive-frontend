@@ -85,6 +85,16 @@
 
   <ul id="fileList"></ul>
 
+<script>
+  // Try to load config.local.js (exists only locally). Ignore if missing in SWA.
+  (function () {
+    var s = document.createElement("script");
+    s.src = "config.local.js";
+    s.onerror = function () { /* no-op */ };
+    document.head.appendChild(s);
+  })();
+</script>
+
   <!-- Jouw eigen code -->
 <script src="./app.js"></script>
 </body>
