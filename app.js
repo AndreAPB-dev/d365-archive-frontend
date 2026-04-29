@@ -12,7 +12,9 @@ if (!path) {
 // ---------- Local config (optional) ----------
 const cfg = window.__cfg || {};
 
-const FUNCTION_KEY = cfg.functionKey || "";
+const ARCHIVE_SAS_FUNCTION_KEY = cfg.archiveSasFunctionKey || "";
+
+const UPLOAD_BLOB_SAS_FUNCTION_KEY = cfg.uploadBlobSasFunctionKey || "";
 
 const GET_ARCHIVE_SAS_URL =
   cfg.getArchiveSasUrl || "https://fa-d365-archive-dta.azurewebsites.net/api/getarchivesas";
@@ -32,7 +34,7 @@ async function getSasContext() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(FUNCTION_KEY ? { "x-functions-key": FUNCTION_KEY } : {})
+      ...(ARCHIVE_SAS_FUNCTION_KEY ? { "x-functions-key": ARCHIVE_SAS_FUNCTION_KEY } : {})
     },
     body: JSON.stringify({ path })
   });
@@ -357,7 +359,7 @@ function enableDragDrop(ctx) {
   
   // Attach upload function endpoint + (optional) key to the context
   ctx.getUploadBlobSasUrl = GET_UPLOAD_BLOB_SAS_URL;
-  ctx.functionKey = FUNCTION_KEY;
+  ctx.functionKey = UPLOAD_BLOB_SAS_FUNCTION_KEY;
 
   await listBlobs(ctx);
   enableDragDrop(ctx);
