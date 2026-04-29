@@ -276,6 +276,10 @@ async function uploadFileToBlob(ctx, file) {
     .replace(/^\/+/, "")
     .replace(/\/+$/, "");
 
+  if (!folderPath) {
+    throw new Error("Upload aborted: folderPath is empty (missing ?path=...)");
+  }
+
   // 1) Per file ask for a blob-level uploadUrl
   const reqBody = {
     folderPath: folderPath,
@@ -286,7 +290,7 @@ async function uploadFileToBlob(ctx, file) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(ctx.functionKey ? { "x-functions-key": ctx.functionKey } : {})
+      ...(ctx.uploadFunctionKey ? { "x-functions-key": ctx.uploadFunctionKey } : {})
     },
     body: JSON.stringify(reqBody)
   });
@@ -359,7 +363,7 @@ function enableDragDrop(ctx) {
   
   // Attach upload function endpoint + (optional) key to the context
   ctx.getUploadBlobSasUrl = GET_UPLOAD_BLOB_SAS_URL;
-  ctx.functionKey = UPLOAD_BLOB_SAS_FUNCTION_KEY;
+  ctx.uploadFunctionKey = UPLOAD_BLOB_SAS_FUNCTION_KEY;
 
   await listBlobs(ctx);
   enableDragDrop(ctx);
